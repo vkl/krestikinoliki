@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Game Krestiki Noliki">
+    <meta name="author" content="vkl">
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static "css/krestikinoliki.css" %}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+    <title>Tic-Tac-Toe</title>
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Tic-Tac-Toe</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#">RUS</a></li>
+            {% if login_success %}
+            <li><a id="username" val="{{ username }}" href="#">Welcome {{ username }}</a></li>
+            <li><a id="logout" href="/logout/">Logout</a></li>
+            {% endif %}
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+	<div class="container">
+	
+	  <div class="row">
+	  
+	  <div class="col-xs-8">
+      
+      {% if login_required %}
+        <form class="form-signin" method="post">
+          <h2 class="form-signin-heading">Please sign in</h2>
+      	  {% csrf_token %}
+      	  {% if login_error %}
+      	  <div class="alert alert-danger">Username and/or password wrong</div>
+      	  {% endif %}
+    	  <label for="username" class="sr-only">Username</label>
+          <input type="text" name="username" class="form-control" placeholder="Username" required autofocus />
+          <label for="password" class="sr-only">Password</label>
+          <input type="password" name="password" class="form-control" placeholder="Password" required />
+    	  <div class="checkbox">
+            <span class="center">
+              <a href="/registration/">Registration</a>
+            </span>
+          </div>
+          <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+   		</form>
+      {% endif %}
+      
+      {% if registration_required %}
+        <form class="form-signin" method="post">
+          <h2 class="form-signin-heading">Please enter your name and password</h2>
+      	  {% csrf_token %}
+      	  {% if user_error %}
+      	  <div class="alert alert-warning">Username {{ user_error }} is used already</div>
+      	  {% endif %}
+    	  <label for="username" class="sr-only">Username</label>
+          <input type="text" name="username" class="form-control" placeholder="Username" required autofocus />
+          <label for="password" class="sr-only">Password</label>
+          <input type="password" name="password" class="form-control" placeholder="Password" required />
+          <button class="btn btn-lg btn-primary btn-block" type="submit">Register me</button>
+   		</form>
+      {% endif %}
+      
+      
+      <div class="game">
+        	<h3>Game</h3>
+        	<h4 id="players"></h4>
+        	<h4 id="playermove"></h4>
+        	    <table id="game_field" class="table_game">
+        	      <tr>
+        	        <td></td><td></td><td></td>
+        	      </tr>
+        	      <tr>
+        	        <td></td><td></td><td></td>
+        	      </tr>
+        	      <tr>
+        	        <td></td><td></td><td></td>
+        	      </tr>
+        	    </table>
+      </div>
+      
+      
+      </div>
+      
+      <div class="col-xs-4">
+      
+       <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Active users</h3>
+          <form id="inviteForm">
+            <input id="inviteToUser" type="hidden" name="invitetouser">
+            {% csrf_token %}
+          </form>
+          <form id="gameForm">
+            <input id="gameStatus" type="hidden" name="gameStatus">
+            <input id="gameUserMessage" type="hidden" name="gameUserMessage">
+            <input id="gameId" type="hidden" name="gameId">
+            {% csrf_token %}
+          </form>
+        </div>
+  		<div id="activeusers" class="panel-body"></div>
+       </div>
+      
+      </div>
+      
+      <div class="modal fade" id="modalPlay" tabindex="-1" role="dialog" aria-labelledby="modalPlay">
+       <div class="modal-dialog" role="document">
+        <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">You have been invited to play by <b id="invitefromuser"></b></h4>
+         </div>
+        <div class="modal-footer">
+          <button id="accept" type="button" class="btn btn-default" data-dismiss="modal">Accept</button>
+          <button id="reject" type="button" class="btn btn-primary" data-dismiss="modal">Reject</button>
+        </div>
+       </div>
+      </div>
+     </div>
+     
+     <div class="modal fade" id="modalMessageOk" tabindex="-1" role="dialog" aria-labelledby="modalPlay">
+       <div class="modal-dialog" role="document">
+        <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Your invite was rejected by <b id="invitetouser"></b></h4>
+         </div>
+        <div class="modal-footer">
+          <button id="ok" type="button" class="btn btn-default" data-dismiss="modal">Ok</button>
+        </div>
+       </div>
+      </div>
+     </div>
+      
+	</div>
+	
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+	<script src="{% static "js/main.js" %}"></script>
+  </body>
+</html>

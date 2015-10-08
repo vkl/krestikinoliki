@@ -17,6 +17,7 @@
 
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
+
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
             <span class="sr-only">Toggle navigation</span>
@@ -24,33 +25,50 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Tic-Tac-Toe</a>
+          <a class="navbar-brand" href="/index/">Tic-Tac-Toe</a>
         </div>
+
         <div id="navbar" class="collapse navbar-collapse">
+
+          {% if login_success %}
+          <ul class="nav navbar-nav">
+           <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Active users <span id="userscount"></span><span class="caret"></span></a>
+            <ul class="dropdown-menu" id="activeusers">
+            </ul>
+           </li>
+          </ul>
+          {% endif %}
+
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="#">RUS</a></li>
+            <li><a id="lang" val="ENG" href="?lang=rus">RUS</a></li>
             {% if login_success %}
             <li><a id="username" val="{{ username }}" href="#">Welcome {{ username }}</a></li>
-            <li><a id="logout" href="/logout/">Logout</a></li>
+            <li><a id="logout" href="#">Logout</a></li>
             {% endif %}
           </ul>
-        </div><!--/.nav-collapse -->
+
+        </div>
+
       </div>
     </nav>
 
 	<div class="container">
-	
+
 	  <div class="row">
-	  
-	  <div class="col-xs-8">
-      
+
+	  <div class="col-xs-12">
+
       {% if login_required %}
-        <form class="form-signin" method="post">
+        <form class="form-signin" method="post" action="/index/">
           <h2 class="form-signin-heading">Please sign in</h2>
       	  {% csrf_token %}
       	  {% if login_error %}
       	  <div class="alert alert-danger">Username and/or password wrong</div>
       	  {% endif %}
+      	  {% if registration_success %}
+     	  <div class="alert alert-info">Registration was successful</div> 
+	  	  {% endif %}
     	  <label for="username" class="sr-only">Username</label>
           <input type="text" name="username" class="form-control" placeholder="Username" required autofocus />
           <label for="password" class="sr-only">Password</label>
@@ -63,27 +81,41 @@
           <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
    		</form>
       {% endif %}
-      
+
       {% if registration_required %}
         <form class="form-signin" method="post">
           <h2 class="form-signin-heading">Please enter your name and password</h2>
       	  {% csrf_token %}
       	  {% if user_error %}
-      	  <div class="alert alert-warning">Username {{ user_error }} is used already</div>
+      	  <div class="alert alert-danger">Username {{ user_error }} is already used</div>
       	  {% endif %}
     	  <label for="username" class="sr-only">Username</label>
           <input type="text" name="username" class="form-control" placeholder="Username" required autofocus />
           <label for="password" class="sr-only">Password</label>
           <input type="password" name="password" class="form-control" placeholder="Password" required />
+          <div class="checkbox">
+            <span class="center">
+              <a href="/index/">Back to logon page</a>
+            </span>
+          </div>
           <button class="btn btn-lg btn-primary btn-block" type="submit">Register me</button>
    		</form>
       {% endif %}
-      
-      
-      <div class="game">
-        	<h3>Game</h3>
-        	<h4 id="players"></h4>
-        	<h4 id="playermove"></h4>
+
+        {% if login_success %}
+          <div class="jumbotron">
+            <h3>Tic-tac-toe</h3>
+            <p class="custom">Tic-tac-toe (also known as Noughts and crosses or Xs and Os) is a paper-and-pencil game for two players, X and O, who take turns marking the spaces in a 3×3 grid. The player who succeeds in placing three of their marks in a horizontal, vertical, or diagonal row wins the game.</p>
+            <p class="custom">To play select any active user from menu above and click on here</p>
+            <p><a class="btn btn-primary btn-lg" href="https://en.wikipedia.org/wiki/Tic-tac-toe" role="button">Learn more from wikipedia</a></p>
+          </div>
+        {% endif %}
+
+
+          <div class="game">
+              <h3 >Игра <a id="close" href="#" title="close"><span class="vertical right glyphicon glyphicon-remove-circle" aria-hidden="true"></span></a></h3>
+        	  <h5 id="players"></h5>
+        	  <h5 id="playermove"></h5>
         	    <table id="game_field" class="table_game">
         	      <tr>
         	        <td></td><td></td><td></td>
@@ -95,16 +127,8 @@
         	        <td></td><td></td><td></td>
         	      </tr>
         	    </table>
-      </div>
-      
-      
-      </div>
-      
-      <div class="col-xs-4">
-      
-       <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title">Active users</h3>
+          </div>
+
           <form id="inviteForm">
             <input id="inviteToUser" type="hidden" name="invitetouser">
             {% csrf_token %}
@@ -115,12 +139,13 @@
             <input id="gameId" type="hidden" name="gameId">
             {% csrf_token %}
           </form>
-        </div>
-  		<div id="activeusers" class="panel-body"></div>
-       </div>
-      
+          <form id="langForm" method="post" action="/index/">
+            <input id="language" type="hidden" name="language">
+            {% csrf_token %}
+          </form>
+
       </div>
-      
+
       <div class="modal fade" id="modalPlay" tabindex="-1" role="dialog" aria-labelledby="modalPlay">
        <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -135,7 +160,7 @@
        </div>
       </div>
      </div>
-     
+
      <div class="modal fade" id="modalMessageOk" tabindex="-1" role="dialog" aria-labelledby="modalPlay">
        <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -149,14 +174,47 @@
        </div>
       </div>
      </div>
-      
+
+     <div class="modal fade" id="modalMessageYesNo" tabindex="-1" role="dialog" aria-labelledby="modalPlay">
+       <div class="modal-dialog" role="document">
+        <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Do you want to start new game?</h4>
+         </div>
+        <div class="modal-footer">
+          <button id="yes" type="button" class="btn btn-default" data-dismiss="modal">Yes</button>
+          <button id="no" type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+        </div>
+       </div>
+      </div>
+     </div>
+     
+     <div class="modal fade" id="modalMessageYesNo2" tabindex="-1" role="dialog" aria-labelledby="modalPlay">
+       <div class="modal-dialog" role="document">
+        <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">There is unfinished game. Do you want to leave it?</h4>
+         </div>
+        <div class="modal-footer">
+          <button id="yes2" type="button" class="btn btn-default" data-dismiss="modal">Yes</button>
+          <button id="no2" type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+        </div>
+       </div>
+      </div>
+     </div>
+
+
+
 	</div>
-	
+
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="{% static "js/lang.js" %}"></script>
 	<script src="{% static "js/main.js" %}"></script>
   </body>
 </html>

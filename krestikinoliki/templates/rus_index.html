@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Game Krestiki Noliki">
+    <meta name="author" content="vkl">
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static "css/krestikinoliki.css" %}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+    <title>Tic-Tac-Toe</title>
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/index/">Крестики Нолики</a>
+        </div>
+
+        <div id="navbar" class="collapse navbar-collapse">
+
+          {% if login_success %}
+          <ul class="nav navbar-nav">
+           <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Пользователи <span id="userscount"></span><span class="caret"></span></a>
+            <ul class="dropdown-menu" id="activeusers">
+            </ul>
+           </li>
+          </ul>
+          {% endif %}
+
+          <ul class="nav navbar-nav navbar-right">
+            <li><a id="lang" val="RUS" href="?lang=eng">ENG</a></li>
+            {% if login_success %}
+            <li><a id="username" val="{{ username }}" href="#">Добро пожаловать, {{ username }}!</a></li>
+            <li><a id="logout" href="#">Выйти</a></li>
+            {% endif %}
+          </ul>
+
+        </div>
+
+      </div>
+    </nav>
+
+	<div class="container container-fluid">
+
+	  <div class="row">
+
+	  <div class="col-xs-12">
+
+      {% if login_required %}
+        <form class="form-signin" method="post" action="/index/">
+          <h2 class="form-signin-heading">Вход на сайт</h2>
+      	  {% csrf_token %}
+      	  {% if login_error %}
+      	  <div class="alert alert-danger">Неверные имя пользователя и (или) пароль</div>
+      	  {% endif %}
+      	  {% if registration_success %}
+     	  <div class="alert alert-info">Регистрация прошла успешно</div> 
+	  	  {% endif %}
+    	  <label for="username" class="sr-only">Логин</label>
+          <input type="text" name="username" class="form-control" placeholder="Username" required autofocus />
+          <label for="password" class="sr-only">Пароль</label>
+          <input type="password" name="password" class="form-control" placeholder="Password" required />
+    	  <div class="checkbox">
+            <span class="center">
+              <a href="/registration/">Регистрация</a>
+            </span>
+          </div>
+          <button class="btn btn-lg btn-primary btn-block" type="submit">Войти</button>
+   		</form>
+      {% endif %}
+
+      {% if registration_required %}
+        <form class="form-signin" method="post">
+          <h2 class="form-signin-heading">Введите ваш логин и пароль</h2>
+      	  {% csrf_token %}
+      	  {% if user_error %}
+      	  <div class="alert alert-danger">Пользователь {{ user_error }} уже существует</div>
+      	  {% endif %}
+    	  <label for="username" class="sr-only">Логин</label>
+          <input type="text" name="username" class="form-control" placeholder="Username" required autofocus />
+          <label for="password" class="sr-only">Пароль</label>
+          <input type="password" name="password" class="form-control" placeholder="Password" required />
+          <div class="checkbox">
+            <span class="center">
+              <a href="/index/">Назад на страницу входа</a>
+            </span>
+          </div>
+          <button class="btn btn-lg btn-primary btn-block" type="submit">Зарегистрируйте меня</button>
+   		</form>
+      {% endif %}
+
+        {% if login_success %}
+          <div class="jumbotron">
+            <h3>Крестики-Нолики</h3>
+            <p class="custom">Крестики-Нолики — логическая игра между двумя противниками на квадратном поле 3 на 3 клетки. Один из игроков играет «крестиками», второй — «ноликами». Игроки по очереди ставят на свободные клетки поля 3х3 знаки (один всегда крестики, другой всегда нолики). Первый, выстроивший в ряд 3 своих фигуры по вертикали, горизонтали или диагонали, выигрывает. Первый ход делает игрок, ставящий крестики.</p>
+            <p class="custom">Выберите игрока из меню выше чтобы начать игру.</p>
+            <p><a class="btn btn-primary btn-lg" href="https://ru.wikipedia.org/wiki/%D0%9A%D1%80%D0%B5%D1%81%D1%82%D0%B8%D0%BA%D0%B8-%D0%BD%D0%BE%D0%BB%D0%B8%D0%BA%D0%B8" role="button">Читать больше на wikipedia</a></p>
+          </div>
+        {% endif %}
+
+          <div class="game">
+        	  <h3 >Игра <a id="close" href="#" title="закрыть"><span class="vertical right glyphicon glyphicon-remove-circle" aria-hidden="true"></span></a></h3>
+        	  <h5 id="players"></h5>
+        	  <h5 id="playermove"></h5>
+        	    <table id="game_field" class="table_game">
+        	      <tr>
+        	        <td></td><td></td><td></td>
+        	      </tr>
+        	      <tr>
+        	        <td></td><td></td><td></td>
+        	      </tr>
+        	      <tr>
+        	        <td></td><td></td><td></td>
+        	      </tr>
+        	    </table>
+          </div>
+
+          <form id="inviteForm">
+            <input id="inviteToUser" type="hidden" name="invitetouser">
+            {% csrf_token %}
+          </form>
+          <form id="gameForm">
+            <input id="gameStatus" type="hidden" name="gameStatus">
+            <input id="gameUserMessage" type="hidden" name="gameUserMessage">
+            <input id="gameId" type="hidden" name="gameId">
+            {% csrf_token %}
+          </form>
+
+      </div>
+
+      <div class="modal fade" id="modalPlay" tabindex="-1" role="dialog" aria-labelledby="modalPlay">
+       <div class="modal-dialog" role="document">
+        <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Вас пригласил в игру <b id="invitefromuser"></b></h4>
+         </div>
+        <div class="modal-footer">
+          <button id="accept" type="button" class="btn btn-default" data-dismiss="modal">Принять</button>
+          <button id="reject" type="button" class="btn btn-primary" data-dismiss="modal">Отклонить</button>
+        </div>
+       </div>
+      </div>
+     </div>
+
+     <div class="modal fade" id="modalMessageOk" tabindex="-1" role="dialog" aria-labelledby="modalPlay">
+       <div class="modal-dialog" role="document">
+        <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Ваше приглашение было отклонено <b id="invitetouser"></b></h4>
+         </div>
+        <div class="modal-footer">
+          <button id="ok" type="button" class="btn btn-default" data-dismiss="modal">Ладно</button>
+        </div>
+       </div>
+      </div>
+     </div>
+
+     <div class="modal fade" id="modalMessageYesNo" tabindex="-1" role="dialog" aria-labelledby="modalPlay">
+       <div class="modal-dialog" role="document">
+        <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Начать новую игру?</h4>
+         </div>
+        <div class="modal-footer">
+          <button id="yes" type="button" class="btn btn-default" data-dismiss="modal">Да</button>
+          <button id="no" type="button" class="btn btn-primary" data-dismiss="modal">Нет</button>
+        </div>
+       </div>
+      </div>
+     </div>
+     
+     <div class="modal fade" id="modalMessageYesNo2" tabindex="-1" role="dialog" aria-labelledby="modalPlay">
+       <div class="modal-dialog" role="document">
+        <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Вы участвуете в игре. Хотите покинуть игру?</h4>
+         </div>
+        <div class="modal-footer">
+          <button id="yes2" type="button" class="btn btn-default" data-dismiss="modal">Yes</button>
+          <button id="no2" type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+        </div>
+       </div>
+      </div>
+     </div>
+
+
+
+	</div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="{% static "js/lang.js" %}"></script>
+	<script src="{% static "js/main.js" %}"></script>
+  </body>
+</html>

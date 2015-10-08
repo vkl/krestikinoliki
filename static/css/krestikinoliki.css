@@ -1,5 +1,5 @@
 body {
-  padding-top: 100px;
+  padding-top: 60px;
   padding-bottom: 40px;
   background-color: #eee;
 }
@@ -38,50 +38,75 @@ body {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
+
 .free {color: green;}
 .busy {color: red;}
 
 .game {
   text-align: center;
   background-color: #fff;
+  display: none;
+}
+
+.title {
+	font-size: 16px;
 }
 
 .table_game {
-    height: 100%;
+	width: 360px;
+	height: 360px;
     margin-left: auto;
     margin-right: auto;
-    background: url(/static/img/gamebg.png/);
+    background: url(/static/img/gamebg.png);
     background-size: cover;
     background-repeat: no-repeat;
+    background-position: center;
 }
 
 .table_game>tbody>tr>td {
-    padding: 30px;
+    padding: 22px;
     line-height: 0;
-    width: 33%px;
-    height: 33%px;
+    /*width: 120px;*/
+    /*height: 120px;*/
+    width: 33%;
+    height: 33%;
     text-align: center;
+    /*border: 1px solid;*/
 }
 
 .gamecellcross {
-	width: 90px;
-	height: 90px;
+	width: 75px;
+	height: 75px;
 	display: none;
 	background: url(/static/img/cross.png);
+	background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .gamecellzero {
-	width: 90px;
-	height: 90px;
+	width: 75px;
+	height: 75px;
 	display: none;
 	background: url(/static/img/zero.png);
-}
-
-.game {
-	display: none;
+	background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .test {
 	display: block;
+}
+
+.jumbotron {
+  text-align: center;
+  border-bottom: 1px solid #e5e5e5;
+}
+.jumbotron .custom {
+  font-size: 16px;
+}
+.jumbotron .btn {
+  padding: 14px 24px;
+  font-size: 16px;
 }
 
